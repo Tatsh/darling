@@ -188,6 +188,10 @@ int main(int argc, char ** argv)
 
 #if USE_LINUX_4_11_HACK
 	joinNamespace(pidInit, CLONE_NEWNS, "mnt");
+	// setns() moves us to the root of the mount namespace; restore the working directory so that
+	// relative paths (e.g. `darling ./program`) still resolve
+	if (chdir(g_workingDirectory) != 0)
+		fprintf(stderr, "Cannot change to %s: %s\n", g_workingDirectory, strerror(errno));
 #endif
 
 	seteuid(g_originalUid);
